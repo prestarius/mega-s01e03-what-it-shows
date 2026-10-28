@@ -1,0 +1,54 @@
+---
+layout: runbook
+title: '#4471 · what it shows: three problems, not one'
+owner: prestarius (student) with Claude Code
+status: proposed
+reviewed: 2026-10-28
+signature: 'v1.eyJzdWIiOiI4NzAiLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5MzE5MTI3NywiZXhwIjoxNzkzMjc3Njc3fQ.wDPAoA_rshZDnZbnT9-i0gL9NNDU7xcx29wTden_dog'
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+The page for [#4471](/kb/incidents/4471) says one issue, one fix queued. Its own table says otherwise,
+and has said so since the first `hint` report arrived in April. This page reads the table and files
+one ticket per problem, in the public repo
+[prestarius/mega-s01e03-what-it-shows](https://github.com/prestarius/mega-s01e03-what-it-shows/issues).
+
+<Callout kind="warn">
+
+Subject-line dedupe ([decision 0001](/kb/decisions/0001-dedupe-by-subject)) merged three different bugs
+because people describe all three the same way: the date is wrong. Intake's tag is a guess from the
+browser; the cause follows the tenant's locale and booking form (`causes.ts`), and the desk's own notes
+mark a handful as something else again.
+
+</Callout>
+
+## The problems, and their tickets
+
+<ProblemTable ticket={4471} />
+
+## How the counts are made
+
+- Every row comes from `reports-4471.json`. The export pages overlap, so rows are deduplicated by id first (`uniqueById`), then kept only when merged into #4471.
+- `causes.ts` places a report by its tenant: a day-first locale through the shared parser is `parser`; a day-first locale typing into a booking-v3 form, whose hint says `MM/DD/YYYY`, is `hint`.
+- `desk-notes.json` lists the reports the desk read as a one-day move. They are taken out of their cause group and counted once, under `one-day-move`.
+- Nothing above is typed into this page. Change the data and the numbers change with it.
+
+## What the desk's table shows today
+
+The desk's component, unchanged, for comparison. It knows two causes and footnotes the rest.
+
+<CauseTable ticket={4471} />
+
+## Lessons
+
+- A big ticket is only "one bug reported many times" when something other than the subject line says so. Count by cause, not by subject.
+- A number typed into a paragraph goes stale the day the queue moves. Let a component compute it, then write the words around it.
+- Read the footnotes. Five reports the desk already knew were different sat under the wrong cause for six months.
+
+<RenderStamp {signature} />

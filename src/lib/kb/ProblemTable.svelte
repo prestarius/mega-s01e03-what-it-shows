@@ -1,0 +1,59 @@
+<script lang="ts">
+  import reports from '#lib/data/reports-4471.json';
+  import notes from '#lib/data/desk-notes.json';
+  import tickets from '#lib/data/tickets-4471.json';
+  import { splitProblems } from '#lib/kb/problems';
+  import { tenantOf } from '#lib/kb/locales';
+  import type { Report } from '#lib/kb/causes';
+
+  let { ticket }: { ticket: number } = $props();
+
+  const problems = $derived(splitProblems(reports as Report[], ticket, tenantOf, notes.oneDayMove));
+  const total = $derived(problems.reduce((n, p) => n + p.reports.length, 0));
+  const tags = (n: Record<string, number>) =>
+    Object.entries(n)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => `${k} ×${v}`)
+      .join(' · ');
+  const issue = (key: keyof typeof tickets.issues) => tickets.issues[key];
+  const url = (key: keyof typeof tickets.issues) => `https://github.com/${tickets.repo}/issues/${issue(key)}`;
+</script>
+
+<p class="sum">
+  <strong>{total}</strong> reports merged into #{ticket} · <strong>{problems.length}</strong> problems · <strong>{problems.length}</strong> tickets
+</p>
+
+<table>
+  <thead>
+    <tr><th>problem</th><th>reports</th><th>tenants</th><th>came in by</th><th>intake tagged it</th><th>seen</th><th>ticket</th></tr>
+  </thead>
+  <tbody>
+    {#each problems as p (p.key)}
+      <tr>
+        <td><code>{p.key}</code></td>
+        <td><strong>{p.reports.length}</strong></td>
+        <td>{p.tenants.length}</td>
+        <td class="tags">{tags(p.channels)}</td>
+        <td class="tags">{tags(p.taggedAs)}</td>
+        <td>{p.firstSeen} → {p.lastSeen}</td>
+        <td>{#if issue(p.key)}<a href={url(p.key)}>#{issue(p.key)}</a>{:else}<span class="pending">not filed yet</span>{/if}</td>
+      </tr>
+    {/each}
+  </tbody>
+</table>
+
+{#each problems as p (p.key)}
+  <h3 id={p.key}><code>{p.key}</code> · {p.title}</h3>
+  <p>{p.what}</p>
+  <p class="tags">
+    {p.reports.length} reports from {p.tenants.join(', ')}.
+    {#if issue(p.key)}Ticket <a href={url(p.key)}>#{issue(p.key)}</a>.{/if}
+  </p>
+{/each}
+
+<style>
+  .sum { font-size: 1.1rem; }
+  .tags { color: var(--muted); font-size: 0.85em; }
+  .pending { color: var(--warn); }
+  h3 { margin-top: 1.5rem; font-size: 1.05rem; }
+</style>
