@@ -21,7 +21,7 @@ const issues = problems.map((p) => {
     '',
     p.what,
     '',
-    `**Reports covered: ${p.reports.length}** of the 412 merged into #4471 (427 export rows, 15 duplicate rows removed by id).`,
+    `**Reports covered: ${p.reports.length}** of the 412 merged into #4471 (427 export rows, 15 duplicate rows removed by id). Counted the desk's way, as exported: each report under its cause by tenant; the one-day-move reports also sit inside the cause they were filed under.`,
     '',
     `- tenants (${p.tenants.length}): ${p.tenants.join(', ')}`,
     `- came in by: ${fmt(p.channels)}`,

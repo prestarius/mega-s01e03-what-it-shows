@@ -36,7 +36,7 @@ mark a handful as something else again.
 
 - Every row comes from `reports-4471.json`. The export pages overlap, so rows are deduplicated by id first (`uniqueById`), then kept only when merged into #4471.
 - `causes.ts` places a report by its tenant: a day-first locale through the shared parser is `parser`; a day-first locale typing into a booking-v3 form, whose hint says `MM/DD/YYYY`, is `hint`.
-- `desk-notes.json` lists the reports the desk read as a one-day move. They are taken out of their cause group and counted once, under `one-day-move`.
+- `desk-notes.json` lists the reports the desk read as a one-day move. The desk counts them where they were filed, by tenant, and footnotes them; this page keeps that count and gives them a ticket of their own.
 - Nothing above is typed into this page. Change the data and the numbers change with it.
 
 ## What the desk's table shows today

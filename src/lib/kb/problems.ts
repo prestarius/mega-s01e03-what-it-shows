@@ -28,7 +28,7 @@ const WHAT: Record<ProblemKey, string> = {
   hint:
     'Tenants on booking-v3 see a MM/DD/YYYY hint under the date field. People follow it and type month first; the form then reads the value the tenant way, day first. A different bug from the parser: the hint is wrong, and only reports through the form hit it. Fix: print the hint the tenant locale uses.',
   'one-day-move':
-    'These reports describe a shift of exactly one day, or the same meeting on two different days in two cities, not a swapped month. The desk read them as a one-day move (desk-notes.json) and filed them under the parser by tenant. They need their own ticket: a date-only value crossing a timezone or a DST change.',
+    'These reports describe a shift of exactly one day, or the same meeting on two different days in two cities, not a swapped month. The desk read them as a one-day move (desk-notes.json) and counts them under the parser by tenant, as its table shows. This ticket carries those same reports: a date-only value crossing a timezone or a DST change.',
 };
 
 function summarize(key: ProblemKey, reports: Report[]): Problem {
@@ -48,7 +48,8 @@ function summarize(key: ProblemKey, reports: Report[]): Problem {
   };
 }
 
-// Every report merged into `ticket` lands in exactly one problem, so the counts add up to the ticket.
+// Counts follow the desk's own view, as exported: a report is counted under its cause by tenant, and the
+// reports the desk read as a one-day move (desk-notes.json) are carried by their own ticket as well.
 export function splitProblems(
   reports: Report[],
   ticket: number,
@@ -56,14 +57,17 @@ export function splitProblems(
   oneDayMove: readonly string[],
 ): Problem[] {
   const merged = uniqueById(reports).filter((r) => r.mergedInto === ticket);
-  const moved = merged.filter((r) => oneDayMove.includes(r.id));
-  const rest = merged.filter((r) => !oneDayMove.includes(r.id));
-  const byCause = new Map(groupByCause(rest, tenantOf).map((g) => [g.cause, g.reports]));
+  const byCause = new Map(groupByCause(merged, tenantOf).map((g) => [g.cause, g.reports]));
   const unplaced = byCause.get('unplaced') ?? [];
   if (unplaced.length) throw new Error(`${unplaced.length} reports have no cause: tenant not on file`);
   return [
     summarize('parser', byCause.get('parser') ?? []),
     summarize('hint', byCause.get('hint') ?? []),
-    summarize('one-day-move', moved),
+    summarize('one-day-move', merged.filter((r) => oneDayMove.includes(r.id))),
   ].sort((a, b) => b.reports.length - a.reports.length);
+}
+
+// How many reports merged into `ticket`, counted once.
+export function mergedCount(reports: Report[], ticket: number): number {
+  return uniqueById(reports).filter((r) => r.mergedInto === ticket).length;
 }

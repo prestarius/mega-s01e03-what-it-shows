@@ -2,14 +2,15 @@
   import reports from '#lib/data/reports-4471.json';
   import notes from '#lib/data/desk-notes.json';
   import tickets from '#lib/data/tickets-4471.json';
-  import { splitProblems } from '#lib/kb/problems';
+  import { mergedCount, splitProblems } from '#lib/kb/problems';
   import { tenantOf } from '#lib/kb/locales';
   import type { Report } from '#lib/kb/causes';
 
   let { ticket }: { ticket: number } = $props();
 
   const problems = $derived(splitProblems(reports as Report[], ticket, tenantOf, notes.oneDayMove));
-  const total = $derived(problems.reduce((n, p) => n + p.reports.length, 0));
+  const total = $derived(mergedCount(reports as Report[], ticket));
+  const moved = $derived(problems.find((p) => p.key === 'one-day-move')?.reports.length ?? 0);
   const tags = (n: Record<string, number>) =>
     Object.entries(n)
       .sort((a, b) => b[1] - a[1])
@@ -41,6 +42,8 @@
     {/each}
   </tbody>
 </table>
+
+<p class="tags">Counted the desk's way, as exported: each report under its cause by tenant, so the {moved} one-day-move reports are also inside the cause they were filed under.</p>
 
 {#each problems as p (p.key)}
   <h3 id={p.key}><code>{p.key}</code> · {p.title}</h3>
