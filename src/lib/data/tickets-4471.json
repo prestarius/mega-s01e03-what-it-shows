@@ -1,8 +1,9 @@
 {
   "repo": "prestarius/mega-s01e03-what-it-shows",
+  "deskUpdate": "#4471 · closed 05 oct (engineering update on the Challenge page)",
   "issues": {
-    "parser": 1,
-    "hint": 2,
-    "one-day-move": 3
+    "parser": { "number": 1, "desk": "fixed", "deskNote": "fix(dates): parse dd/mm for eu locales", "state": "closed", "reason": "completed" },
+    "hint": { "number": 2, "desk": "won't fix", "deskNote": "booking-v3 form retired", "state": "closed", "reason": "not planned" },
+    "one-day-move": { "number": 3, "desk": "not mentioned", "deskNote": "the dd/mm fix does not explain a one-day shift", "state": "open", "reason": "" }
   }
 }

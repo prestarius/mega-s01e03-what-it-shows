@@ -45,6 +45,10 @@ The desk's component, unchanged, for comparison. It knows two causes and footnot
 
 <CauseTable ticket={4471} />
 
+## Where it stands
+
+The desk closed #4471 on 5 October. Its engineering update names two outcomes, one per cause it knew: the parser fixed, the hint not fixed because the form is gone. The one-day move is in neither, so its ticket stays open until someone reads those five reports.
+
 ## Lessons
 
 - A big ticket is only "one bug reported many times" when something other than the subject line says so. Count by cause, not by subject.

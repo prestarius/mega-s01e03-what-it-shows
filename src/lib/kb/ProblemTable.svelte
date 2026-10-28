@@ -16,17 +16,19 @@
       .sort((a, b) => b[1] - a[1])
       .map(([k, v]) => `${k} ×${v}`)
       .join(' · ');
-  const issue = (key: keyof typeof tickets.issues) => tickets.issues[key];
+  const issue = (key: keyof typeof tickets.issues) => tickets.issues[key].number;
+  const ticket_ = (key: keyof typeof tickets.issues) => tickets.issues[key];
   const url = (key: keyof typeof tickets.issues) => `https://github.com/${tickets.repo}/issues/${issue(key)}`;
 </script>
 
 <p class="sum">
   <strong>{total}</strong> reports merged into #{ticket} · <strong>{problems.length}</strong> problems · <strong>{problems.length}</strong> tickets
 </p>
+<p class="tags">Desk: {tickets.deskUpdate}.</p>
 
 <table>
   <thead>
-    <tr><th>problem</th><th>reports</th><th>tenants</th><th>came in by</th><th>intake tagged it</th><th>seen</th><th>ticket</th></tr>
+    <tr><th>problem</th><th>reports</th><th>tenants</th><th>came in by</th><th>intake tagged it</th><th>seen</th><th>ticket</th><th>desk says</th></tr>
   </thead>
   <tbody>
     {#each problems as p (p.key)}
@@ -37,7 +39,8 @@
         <td class="tags">{tags(p.channels)}</td>
         <td class="tags">{tags(p.taggedAs)}</td>
         <td>{p.firstSeen} → {p.lastSeen}</td>
-        <td>{#if issue(p.key)}<a href={url(p.key)}>#{issue(p.key)}</a>{:else}<span class="pending">not filed yet</span>{/if}</td>
+        <td>{#if issue(p.key)}<a href={url(p.key)}>#{issue(p.key)}</a> <span class="tags">{ticket_(p.key).state}{ticket_(p.key).reason ? `, ${ticket_(p.key).reason}` : ''}</span>{:else}<span class="pending">not filed yet</span>{/if}</td>
+        <td class="tags"><strong>{ticket_(p.key).desk}</strong> · {ticket_(p.key).deskNote}</td>
       </tr>
     {/each}
   </tbody>
